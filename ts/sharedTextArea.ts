@@ -35,6 +35,11 @@ export class SharedTextArea {
           (ev) => { this.handleMove(ev); })
       });
     this.div = document.createElement('textarea');
+    if (localStorage.getItem('tomodomo/code')) {
+      this.div.value = localStorage.getItem('tomodomo/code');
+    }
+    this.sendCode();
+
     this.shadows = new Map<string, ShadowPosition>();
     this.shadowImages = new Map<string, HTMLImageElement>();
 
@@ -74,8 +79,10 @@ export class SharedTextArea {
   }
 
   sendCode() {
-    console.log(`Uploading ${this.div.value.length} bytes.`);
-    this.gameFrame.setScript(this.div.value);
+    const code = this.div.value;
+    console.log(`Uploading ${code} bytes.`);
+    this.gameFrame.setScript(code);
+    localStorage.setItem('tomodomo/code', code);
   }
 
   private lastX: number;
