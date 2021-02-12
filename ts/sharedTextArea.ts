@@ -1,3 +1,4 @@
+import { GameFrame } from "./gameFrame";
 import { HeartbeatGroup } from "./heartbeatGroup";
 
 class ShadowPosition {
@@ -13,9 +14,11 @@ export class SharedTextArea {
   private div: HTMLTextAreaElement;
   private shadows: Map<string, ShadowPosition>;
   private shadowImages: Map<string, HTMLImageElement>;
-
-  constructor(heartbeatGroup: HeartbeatGroup) {
+  private gameFrame: GameFrame;
+  private updateTimeout: NodeJS.Timeout;
+  constructor(heartbeatGroup: HeartbeatGroup, gameFrame: GameFrame) {
     this.heartbeatGroup = heartbeatGroup;
+    this.gameFrame = gameFrame;
     this.heartbeatGroup.getConnection().waitReady().then(
       (conn) => {
         this.id = conn.id();
@@ -62,10 +65,17 @@ export class SharedTextArea {
       if (this.div.value.length === 0 || previousText === this.div.value) {
         return;
       }
+      clearTimeout(this.updateTimeout);
+      this.updateTimeout = setTimeout(() => { this.sendCode(); }, 1000);
       previousText = this.div.value;
       const message = `text: ${btoa(this.div.value)}`;
       this.heartbeatGroup.broadcast(message);
     })
+  }
+
+  sendCode() {
+    console.log(`Uploading ${this.div.value.length} bytes.`);
+    this.gameFrame.setScript(this.div.value);
   }
 
   private lastX: number;

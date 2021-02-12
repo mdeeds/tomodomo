@@ -18,5 +18,6 @@ export class GameFrame {
     const html =
       `<head><script>${javascript}</script>` +
       `<body onload="main()"></body>`;
+    this.setContent(html);
   }
 }

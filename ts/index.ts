@@ -55,7 +55,6 @@ if (!username) {
     })
   }
 
-  const b = new SharedTextArea(heartbeatGroup);
   const g = new GameFrame();
-  g.setContent("<h1>Hello, World!</h1>");
+  const b = new SharedTextArea(heartbeatGroup, g);
 }
