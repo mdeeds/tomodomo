@@ -1,3 +1,5 @@
+import beautify from "js-beautify";
+
 import { GameFrame } from "./gameFrame";
 import { HeartbeatGroup } from "./heartbeatGroup";
 
@@ -80,9 +82,30 @@ export class SharedTextArea {
 
   sendCode() {
     const code = this.div.value;
-    console.log(`Uploading ${code} bytes.`);
+    console.log(`Uploading ${code.length} bytes.`);
     this.gameFrame.setScript(code);
     localStorage.setItem('tomodomo/code', code);
+  }
+
+  format() {
+    const code = beautify(this.div.value, {
+      "indent_size": 2,
+      "indent_char": " ",
+      "max_preserve_newlines": 1,
+      "preserve_newlines": true,
+      "keep_array_indentation": false,
+      "break_chained_methods": false,
+      "brace_style": "collapse",
+      "space_before_conditional": true,
+      "unescape_strings": false,
+      "jslint_happy": false,
+      "end_with_newline": false,
+      "wrap_line_length": 80,
+      "comma_first": false,
+      "e4x": false,
+      "indent_empty_lines": false
+    });
+    this.div.value = code;
   }
 
   private lastX: number;
