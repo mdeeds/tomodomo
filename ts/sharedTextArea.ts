@@ -10,6 +10,11 @@ class ShadowPosition {
   hue: number;
 }
 
+class TextUpdate {
+  sourcePosition: number;
+  encodedText: string;
+}
+
 export class SharedTextArea {
   private heartbeatGroup: HeartbeatGroup;
   private id: string;
@@ -52,11 +57,20 @@ export class SharedTextArea {
     body.appendChild(this.div);
 
     this.heartbeatGroup.getConnection().addCallback("text: ",
-      (text: string) => {
-        console.log(`Recieved ${text.length} bytes.`);
-        const oldPosition = this.div.selectionStart;
-        this.div.value = atob(text);
-        this.div.setSelectionRange(oldPosition, oldPosition);
+      (serialized: string) => {
+        const update: TextUpdate = JSON.parse(serialized) as TextUpdate;
+        console.log(`Recieved ${serialized.length} bytes.`);
+        const newText = atob(update.encodedText);
+        const oldText = this.div.value;
+        const charsAdded = newText.length - oldText.length;
+        const insertBefore = this.div.selectionStart > update.sourcePosition;
+        const newStart = this.div.selectionStart + (insertBefore ? charsAdded : 0);
+        const newEnd = this.div.selectionEnd + (insertBefore ? charsAdded : 0);
+        console.log(`Delta: ${charsAdded}, `
+          + `this position: ${this.div.selectionStart}, `
+          + `incoming position: ${update.sourcePosition}`);
+        this.div.value = newText;
+        this.div.setSelectionRange(newStart, newEnd);
       }
     )
 
@@ -75,7 +89,11 @@ export class SharedTextArea {
       clearTimeout(this.updateTimeout);
       this.updateTimeout = setTimeout(() => { this.sendCode(); }, 1000);
       previousText = this.div.value;
-      const message = `text: ${btoa(this.div.value)}`;
+      const update = new TextUpdate();
+      update.encodedText = btoa(this.div.value);
+      update.sourcePosition = this.div.selectionStart;
+
+      const message = `text: ${JSON.stringify(update)}`;
       this.heartbeatGroup.broadcast(message);
     })
   }

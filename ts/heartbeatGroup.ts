@@ -117,7 +117,10 @@ export class HeartbeatGroup {
 
   broadcast(message: string) {
     for (const [other, health] of this.healthMap.entries()) {
-      if (other !== this.connection.id() && health.isHealthy()) {
+      if (health != null && !health.isHealthy()) {
+        continue;
+      }
+      if (other !== this.connection.id()) {
         this.connection.send(other, message);
       }
     }
