@@ -130,10 +130,13 @@ export class HeartbeatGroup {
   }
 
   private makeThump(): string {
+    if (this.connection.id() === null) {
+      return;
+    }
     const otherList: string[] = [`${this.connection.id()}=${this.username}`];
     this.healthMap.get(this.connection.id()).update();
     for (const [peerId, healthStatus] of this.healthMap) {
-      if (healthStatus === null) {
+      if (healthStatus === null || peerId == this.connection.id()) {
         continue;
       }
       otherList.push(`${peerId}=${healthStatus.username}`);
