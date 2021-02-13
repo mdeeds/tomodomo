@@ -21,7 +21,7 @@ span {
   border: 3px solid #ff4488;
   border-radius: 10px;
   position:absolute;
-  bottom: 0px;
+  top: 24px;
   left: 0px;
   width: 800px;
   height: calc(100vh - 40px);
