@@ -38,19 +38,16 @@ export class Levenshtein<T> {
       if (i > 0 && j > 0 && d[i - 1][j - 1] <= d[i][j - 1] &&
         d[i - 1][j - 1] <= d[i - 1][j]) {
         if (d[i - 1][j - 1] < d[i][j]) {
-          console.log("Edit");
           result.push(new Edit(i, "edit", t[j]));
         }
         --i;
         --j;
       } else if (i > 0 && (j == 0 || (d[i - 1][j] <= d[i][j - 1] &&
         d[i - 1][j] < d[i - 1][j - 1]))) {
-        console.log("Delete");
         result.push(new Edit(i, "delete"));
         --i;
       } else if (j > 0 && (i == 0 || (d[i][j - 1] <= d[i - 1][j] &&
         d[i][j - 1] < d[i - 1][j - 1]))) {
-        console.log("Add");
         result.push(new Edit(i, "add", t[j]));
         --j;
       } else {
@@ -98,7 +95,6 @@ export class Levenshtein<T> {
         d[i][j] = cost;
       }
     }
-    console.log(JSON.stringify(d));
 
     return this.generateEdits(d, s, t);
   }
