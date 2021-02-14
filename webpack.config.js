@@ -1,6 +1,9 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 module.exports = {
+  optimization: {
+    minimize: false,
+  },
   module: {
     rules: [
       {
