@@ -1,3 +1,5 @@
+import { QuadTree } from "./quadTree";
+
 export class GameFrame {
   private iFrame: HTMLIFrameElement;
   private source = "";
@@ -35,7 +37,10 @@ export class GameFrame {
 
   setScript(javascript: string) {
     const html =
-      `<head><script>${javascript}</script>` +
+      `<head>` +
+      `<script>${QuadTree.toString()}</script>` +
+      `<script>${javascript}</script>` +
+      `</head>` +
       `<body onload="main()"></body>`;
     this.setContent(html);
   }
