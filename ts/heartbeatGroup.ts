@@ -49,11 +49,13 @@ export class HeartbeatGroup {
   private status: HTMLDivElement;
   private leader: boolean;
   private leaderId: string;
+  private meetCallbacks: Function[];
 
   constructor(username: string, joinId: string = null) {
     this.username = username;
     this.connection = new PeerConnection(null);
     this.healthMap = new Map<string, PeerHealth>();
+    this.meetCallbacks = [];
 
     this.status = document.createElement('div');
     this.status.innerText = "Status";
@@ -94,6 +96,9 @@ export class HeartbeatGroup {
             this.healthMap.get(peerId) === null) {
             this.healthMap.set(peerId,
               new PeerHealth(peerId, peerUser, this.status));
+            for (const c of this.meetCallbacks) {
+              c(peerId);
+            }
           } else {
             if (i === 0) {
               this.healthMap.get(peerId).update();
@@ -101,6 +106,10 @@ export class HeartbeatGroup {
           }
         }
       })
+  }
+
+  addMeetCallback(callback: Function) {
+    this.meetCallbacks.push(callback);
   }
 
   isLeader() {

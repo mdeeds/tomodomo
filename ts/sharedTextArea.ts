@@ -2,6 +2,7 @@ import beautify from "js-beautify";
 
 import { GameFrame } from "./gameFrame";
 import { HeartbeatGroup } from "./heartbeatGroup";
+import { Edit, Levenshtein } from "./levenshtein";
 
 class ShadowPosition {
   ownerId: string;
@@ -74,6 +75,25 @@ export class SharedTextArea {
       }
     )
 
+    this.heartbeatGroup.getConnection().addCallback("edit: ",
+      (serialized: string) => {
+        const selectionStart = this.div.selectionStart;
+        const selectionEnd = this.div.selectionEnd;
+        const edits: Edit<string>[] = JSON.parse(serialized);
+        const lines: string[] = Levenshtein.splitLines(this.div.value);
+        Levenshtein.applyEdits<string>(lines, edits);
+        this.div.value = Levenshtein.combineLines(lines);
+        this.div.setSelectionRange(selectionStart, selectionEnd);
+      });
+
+    this.heartbeatGroup.addMeetCallback((peerId: string) => {
+      const update = new TextUpdate();
+      update.encodedText = btoa(this.div.value);
+      update.sourcePosition = this.div.selectionStart;
+      const message = `text: ${JSON.stringify(update)}`;
+      this.heartbeatGroup.getConnection().send(peerId, message);
+    })
+
     this.heartbeatGroup.getConnection().addCallback("shadow: ",
       (serialized: string) => {
         const shadow = JSON.parse(serialized) as ShadowPosition;
@@ -88,13 +108,13 @@ export class SharedTextArea {
       }
       clearTimeout(this.updateTimeout);
       this.updateTimeout = setTimeout(() => { this.sendCode(); }, 1000);
-      previousText = this.div.value;
-      const update = new TextUpdate();
-      update.encodedText = btoa(this.div.value);
-      update.sourcePosition = this.div.selectionStart;
 
-      const message = `text: ${JSON.stringify(update)}`;
+      const edits = Levenshtein.distance<string>(
+        Levenshtein.splitLines(previousText),
+        Levenshtein.splitLines(this.div.value));
+      const message = `edit: ${JSON.stringify(edits)}`;
       this.heartbeatGroup.broadcast(message);
+      previousText = this.div.value;
     })
   }
 

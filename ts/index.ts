@@ -1,5 +1,6 @@
 import { GameFrame } from "./gameFrame";
 import { HeartbeatGroup } from "./heartbeatGroup";
+import { Levenshtein } from "./levenshtein";
 import { SharedTextArea } from "./sharedTextArea";
 
 const body = document.getElementsByTagName('body')[0];
